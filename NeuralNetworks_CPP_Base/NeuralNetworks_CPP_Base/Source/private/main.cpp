@@ -17,7 +17,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "neural.h"
+#include "../public/neural.h"
 #include <iomanip>
 #include <iostream>
 
@@ -26,9 +26,9 @@ using namespace Neural;
 namespace {
     const int ITERS = 4000;
     const double lr = 1.0;
-    u_int32_t P = 2147483647;
-    u_int32_t A = 16807;
-    u_int32_t current = 1;
+    unsigned int P = 2147483647;
+    unsigned int A = 16807;
+    unsigned int current = 1;
     double Rand() {
         current = current * A % P;
         double result = (double)current / P;
