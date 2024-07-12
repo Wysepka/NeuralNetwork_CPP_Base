@@ -130,7 +130,7 @@ void Trainer::Train(const Vector& input, const Vector& y, double lr) {
     }
 
     for (size_t r = 0; r < network.hiddenCount; r++) {
-        for (size_t c = 0; c < network.outputCount; c++) {
+        for (size_t c = 0; c < network.inputCount; c++) {
             network.weightsHidden[r * network.hiddenCount + c] -= lr * gradHidden[c] * input[r];
         }
     }

@@ -20,6 +20,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "../public/neural.h"
 #include <iomanip>
 #include <iostream>
+#include "../../DataLogWriter.h"
+#include "../../FileParser.h"
 
 using namespace Neural;
 
@@ -45,12 +47,34 @@ namespace {
 
 void show_weights(const Network& network);
 
+void CalculateLogicGates();
+void CalculateHandWrittenDigits();
+
 int main() {
+    CalculateLogicGates();
+
+    CalculateHandWrittenDigits();
+
+    return 0;
+}
+
+void CalculateHandWrittenDigits() {
+    Matrix inputs = Matrix();
+    Matrix outputs = Matrix();
+
+    DataLogWriter dataLogWriter;
+    FileParser fileParser;
+    auto fileData = fileParser.processFilePathToFileData("C:/Dev/Projekty/NeuralNetworks_CPP_Base/NeuralNetwork_CPP_Base/semeion.data/semeion.data");
+    dataLogWriter.OutputNumberFileData(fileData);
+}
+
+void CalculateLogicGates()
+{
     Matrix inputs = Matrix();
     Matrix outputs = Matrix();
     for (size_t i = 0; i < 2; i++) {
         for (size_t j = 0; j < 2; j++) {
-            inputs.push_back({ (double)i, (double)j});
+            inputs.push_back({ (double)i, (double)j });
             outputs.push_back({
                 (double)Xor(i, j),
                 (double)Xnor(i, j),
@@ -58,7 +82,7 @@ int main() {
                 (double)And(i, j),
                 (double)Nor(i, j),
                 (double)Nand(i, j)
-            });
+                });
         }
     }
 
@@ -101,8 +125,6 @@ int main() {
     }
 
     show_weights(trainer.network);
-
-    return 0;
 }
 
 void show_weights(const Network& network) {
