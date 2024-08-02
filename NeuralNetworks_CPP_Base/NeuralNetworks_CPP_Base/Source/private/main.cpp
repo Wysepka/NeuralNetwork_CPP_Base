@@ -64,8 +64,11 @@ void CalculateHandWrittenDigits() {
 
     DataLogWriter dataLogWriter;
     FileParser fileParser;
-    auto fileData = fileParser.processFilePathToFileData("C:/Dev/Projekty/NeuralNetworks_CPP_Base/NeuralNetwork_CPP_Base/semeion.data/semeion.data");
+    //auto fileData = fileParser.processFilePathToFileData("C:/Dev/Projekty/NeuralNetworks_CPP_Base/NeuralNetwork_CPP_Base/semeion.data/semeion.data");
+    auto fileData = fileParser.processFilePathToFileData("D:/Projekty/Unity/TripleEspresso/NeuralNetwork_CPP_Base/NeuralNetworks_CPP_Base/NeuralNetworks_CPP_Base/Data/semeion.data");
     dataLogWriter.OutputNumberFileData(fileData);
+
+
 }
 
 void CalculateLogicGates()

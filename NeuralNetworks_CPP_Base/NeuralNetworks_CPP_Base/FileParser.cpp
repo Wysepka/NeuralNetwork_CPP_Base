@@ -34,11 +34,14 @@ NumberFileData FileParser::processFilePathToFileData(const std::string& filePath
         SingleNumberData numberData;
         int numberCounter = 0;
         std::string singleRowContainer;
+		unsigned int endDigitCounter = -4;
+		bool hasAddedNumber;
         for (size_t i = 0; i < line.length(); i++)
         {
-            if (numberCounter > 0 && numberCounter % 16 == 0) {
+            if (numberCounter > 0 && numberCounter % 16 == 0 && !hasAddedNumber) {
                 numberData.rowData.push_back(singleRowContainer);
                 singleRowContainer.clear();
+				hasAddedNumber = true;
             }
             if (line[i] == int('.')) {
                 numberCounter++;
@@ -48,8 +51,22 @@ NumberFileData FileParser::processFilePathToFileData(const std::string& filePath
                 else if (line[i - 1] == int('0')) {
                     singleRowContainer.push_back('0');
                 }
+				hasAddedNumber = false;
             }
+			if (numberData.rowData.size() == 16) 
+			{
+				if (line[i] == int('0')) 
+				{
+					endDigitCounter++;
+				}
+				if (line[i] == int('1')) 
+				{
+					numberData.number = endDigitCounter;
+					break;
+				}
+			}
         }
+		NumberFileDatas.numberDatas.push_back(numberData);
     }
 
 

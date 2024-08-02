@@ -129,12 +129,16 @@
   <ItemGroup>
     <ClCompile Include="DataLogWriter.cpp" />
     <ClCompile Include="FileParser.cpp" />
+    <ClCompile Include="NeuralNetwork.cpp" />
+    <ClCompile Include="Neuron.cpp" />
     <ClCompile Include="Source\private\main.cpp" />
     <ClCompile Include="Source\private\neural.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DataLogWriter.h" />
     <ClInclude Include="FileParser.h" />
+    <ClInclude Include="NeuralNetwork.h" />
+    <ClInclude Include="Neuron.h" />
     <ClInclude Include="Source\public\neural.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

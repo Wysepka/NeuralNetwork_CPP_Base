@@ -4,7 +4,7 @@ void DataLogWriter::OutputNumberFileData(NumberFileData numberFileData)
 {
 	for (size_t i = 0; i < numberFileData.numberDatas.size(); i++)
 	{
-		std::cout << "IT:" << i << " | Number:" << numberFileData.numberDatas[i].number;
+		std::cout << "IT:" << i << " | Number:" << numberFileData.numberDatas[i].number << "\n";
 		auto numberData = numberFileData.numberDatas[i];
 		for (size_t j = 0; j < numberData.rowData.size(); j++)
 		{
