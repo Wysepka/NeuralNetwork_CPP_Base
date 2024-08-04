@@ -133,6 +133,7 @@
     <ClCompile Include="Neuron.cpp" />
     <ClCompile Include="Source\private\main.cpp" />
     <ClCompile Include="Source\private\neural.cpp" />
+    <ClCompile Include="Synapse.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DataLogWriter.h" />
@@ -140,6 +141,7 @@
     <ClInclude Include="NeuralNetwork.h" />
     <ClInclude Include="Neuron.h" />
     <ClInclude Include="Source\public\neural.h" />
+    <ClInclude Include="Synapse.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
