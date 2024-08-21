@@ -1,15 +1,57 @@
 #include "Neuron.h"
 
-Neuron::Neuron(unsigned int neuronID, unsigned int layerID)
-{
-	this->neuronID = neuronID;
-	this->layerID = layerID;
-}
+Neuron::Neuron(unsigned int neuronID, unsigned int layerID , float bias) : neuronID(neuronID) , layerID(layerID) , bias(bias) , value(0.f) , gradientValue(0.f)
+{}
 
 void Neuron::Initialize(SynapseArray forwardSynapses, SynapseArray backwardSynapses)
 {
-	this->forwardSynapses = std::move(forwardSynapses);
-	this->backwardSynapses = std::move(backwardSynapses);
+	if (forwardSynapses.get() != nullptr) 
+	{
+		this->forwardSynapses = std::move(forwardSynapses);
+	}
+	if (backwardSynapses.get() != nullptr) 
+	{
+		this->backwardSynapses = std::move(backwardSynapses);
+	}
+}
+
+void Neuron::FeedValue(float value)
+{
+	valueSum += value;
+	feedCount++;
+}
+
+void Neuron::CalculateValue()
+{
+	value = valueSum / feedCount;
+	value = Functions::sigmoid(value + bias);
+}
+
+void Neuron::PreFeedValueInitialize()
+{
+	valueSum = 0;
+	feedCount = 0;
+}
+
+void Neuron::FeedForward()
+{
+	CalculateValue();
+	for (size_t i = 0; i < forwardSynapses->size(); i++)
+	{
+		(*forwardSynapses)[i]->FeedToForwardLayer(value);
+	}
+}
+
+float Neuron::GetOutput()
+{
+	CalculateValue();
+	return value;
+}
+
+void Neuron::CalculateGradient(int originalValue)
+{
+	CalculateValue();
+	gradientValue = (originalValue - value) * Functions::sigmoid(value);
 }
 
 void Neuron::Dispose()

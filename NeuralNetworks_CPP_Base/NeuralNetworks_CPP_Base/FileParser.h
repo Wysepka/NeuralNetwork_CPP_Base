@@ -9,6 +9,7 @@
 
 struct SingleNumberData {
 	std::vector<std::string> rowData;
+	std::vector<int> rowDataRawFlattened;
 	unsigned int number;
 };
 

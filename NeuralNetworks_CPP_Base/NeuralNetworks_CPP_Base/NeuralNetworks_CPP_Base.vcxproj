@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="DataLogWriter.cpp" />
     <ClCompile Include="FileParser.cpp" />
+    <ClCompile Include="Functions.cpp" />
     <ClCompile Include="NeuralNetwork.cpp" />
     <ClCompile Include="Neuron.cpp" />
     <ClCompile Include="Source\private\main.cpp" />
@@ -138,6 +139,7 @@
   <ItemGroup>
     <ClInclude Include="DataLogWriter.h" />
     <ClInclude Include="FileParser.h" />
+    <ClInclude Include="Functions.h" />
     <ClInclude Include="NeuralNetwork.h" />
     <ClInclude Include="Neuron.h" />
     <ClInclude Include="Source\public\neural.h" />

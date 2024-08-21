@@ -47,9 +47,11 @@ NumberFileData FileParser::processFilePathToFileData(const std::string& filePath
                 numberCounter++;
                 if (line[i - 1] == int('1')) {
                     singleRowContainer.push_back('1');
+					numberData.rowDataRawFlattened.push_back(1);
                 }
                 else if (line[i - 1] == int('0')) {
                     singleRowContainer.push_back('0');
+					numberData.rowDataRawFlattened.push_back(0);
                 }
 				hasAddedNumber = false;
             }
