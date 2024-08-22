@@ -12,17 +12,17 @@ void NeuralNetwork::InitializeNeuralNetwork(int inputLayerNum, int hiddenLayerNu
 
 	for (size_t i = 0; i < inputLayerNum; i++)
 	{
-		inputLayerNeurons->push_back(std::make_shared<Neuron>(i , 0 , 0));
+		inputLayerNeurons->push_back(std::make_shared<Neuron>(i , 0 , 0 ,Enumeration::NeuronType::Input));
 	}
 
 	for (size_t i = 0; i < hiddenLayerNum; i++)
 	{
-		hiddenLayerNeurons->push_back(std::make_shared<Neuron>(i , 1 , 0));
+		hiddenLayerNeurons->push_back(std::make_shared<Neuron>(i , 1 , 0 , Enumeration::NeuronType::Hidden));
 	}
 
 	for (size_t i = 0; i < outputLayerNum; i++)
 	{
-		outputLayerNeurons->push_back(std::make_shared<Neuron>(i , 2 , 0));
+		outputLayerNeurons->push_back(std::make_shared<Neuron>(i , 2 , 0 , Enumeration::NeuronType::Output));
 	}
 	std::random_device rd;
 	std::mt19937 gen(rd()); // Mersenne Twister engine
@@ -38,7 +38,10 @@ void NeuralNetwork::InitializeNeuralNetwork(int inputLayerNum, int hiddenLayerNu
 		{
 			auto randomNumber = static_cast<float>(distr(gen));
 			auto neuronForwardFeedFunc = [&neuron = (*hiddenLayerNeurons)[j]](float value) {neuron->FeedValue(value); };
- 			std::shared_ptr<Synapse> SynapsePtr = std::make_shared<Synapse>(i, j , randomNumber , neuronForwardFeedFunc);
+			auto neuronForwardGradientValueFunc = [&neuron = (*hiddenLayerNeurons)[j]]() {neuron->GetGradientValue(); };
+			NeuronInfo ForwardNeuronInfo(i, Enumeration::NeuronType::Input);
+			NeuronInfo BackwardNeuronInfo(j, Enumeration::NeuronType::Hidden);
+ 			std::shared_ptr<Synapse> SynapsePtr = std::make_shared<Synapse>(ForwardNeuronInfo, BackwardNeuronInfo, randomNumber , neuronForwardFeedFunc , neuronForwardGradientValueFunc);
 			inputLayerSynapses->push_back(SynapsePtr);
 		}
 		firstLayerSynapses.push_back(*inputLayerSynapses);
@@ -57,8 +60,11 @@ void NeuralNetwork::InitializeNeuralNetwork(int inputLayerNum, int hiddenLayerNu
 		for (size_t j = 0; j < outputLayerNum; j++)
 		{
 			auto randomNumber = static_cast<float>(distr(gen));
-			auto neuronForwardFeedFunc = [&neuron = (*hiddenLayerNeurons)[j]](float value) {neuron->FeedValue(value); };
-			std::shared_ptr<Synapse> SynapsePtr = std::make_shared<Synapse>(i, j , randomNumber , neuronForwardFeedFunc);
+			auto neuronForwardFeedFunc = [&neuron = (*outputLayerNeurons)[j]](float value) {neuron->FeedValue(value); };
+			auto neuronForwardGradientValueFunc = [&neuron = (*outputLayerNeurons)[j]]() {neuron->GetGradientValue(); };
+			NeuronInfo ForwardNeuronInfo(i, Enumeration::NeuronType::Hidden);
+			NeuronInfo BackwardNeuronInfo(j, Enumeration::NeuronType::Output);
+			std::shared_ptr<Synapse> SynapsePtr = std::make_shared<Synapse>(ForwardNeuronInfo, BackwardNeuronInfo , randomNumber , neuronForwardFeedFunc , neuronForwardGradientValueFunc);
 			hiddenLayerSynapses->push_back(SynapsePtr);
 		}
 
@@ -79,12 +85,27 @@ void NeuralNetwork::InitializeNeuralNetwork(int inputLayerNum, int hiddenLayerNu
 	std::cout << "Neural Network Digit Recognition Initialization Ended ! \n";
 }
 
-void NeuralNetwork::Predict(NumberFileData numberFileData, float learningRate)
+void NeuralNetwork::ComputeNeuralNetwork(NumberFileData numberFileData, float learningRate)
 {
+	for (size_t i = 0; i < numberFileData.numberDatas.size(); i++)
+	{
+		std::vector<float> outputPrediction = PredictSingleNumber(numberFileData.numberDatas[i]);
 
+		lastPredictedNum = closestToOne(outputPrediction);
+
+		TrainSingleIteration(outputPrediction, learningRate);
+	}
 }
 
-void NeuralNetwork::PredictSingleNumber(SingleNumberData singleNumberData, float learningRate)
+void NeuralNetwork::GetPredictionOnSingleFileNumber(SingleNumberData numberData)
+{
+	std::vector<float> outputPrediction = PredictSingleNumber(numberData);
+	lastPredictedNum = closestToOne(outputPrediction);
+}
+
+
+
+std::vector<float> NeuralNetwork::PredictSingleNumber(SingleNumberData singleNumberData)
 {
 	if (singleNumberData.rowDataRawFlattened.size() != inputLayerNeurons->size()) {
 		throw std::runtime_error("Input Size is different than Input Neurons !");
@@ -118,22 +139,63 @@ void NeuralNetwork::PredictSingleNumber(SingleNumberData singleNumberData, float
 	{
 		(*hiddenLayerNeurons)[i]->FeedForward();
 	}
-	std::vector<float> outputDifference;
+	std::vector<float> outputPrediction;
 	for (size_t i = 0; i < outputLayerNeurons->size(); i++)
 	{
-		float outputPredicted = (*outputLayerNeurons)[i]->GetOutput();
-
+		outputPrediction.push_back((*outputLayerNeurons)[i]->GetOutput());
 	}
 }
 
-int NeuralNetwork::TrainSingleIteration(std::vector<float> outputGradience)
+int NeuralNetwork::TrainSingleIteration(std::vector<float> outputGradience , float learningRate)
 {
 	for (size_t i = 0; i < outputLayerNeurons->size(); i++)
 	{
+		(*outputLayerNeurons)[i]->CalculateGradient_Output(outputGradience[i]);
+	}
+	for (size_t i = 0; i < hiddenLayerNeurons->size(); i++)
+	{
+		(*hiddenLayerNeurons)[i]->CalculateGradient_Hidden();
+	}
+	
+	for (size_t i = 0; i < hiddenLayerNeurons->size(); i++)
+	{
+		(*hiddenLayerNeurons)[i]->CalculateForwardWeights(learningRate);
+	}
+	for (size_t i = 0; i < inputLayerNeurons->size(); i++)
+	{
+		(*inputLayerNeurons)[i]->CalculateForwardWeights(learningRate);
+	}
 
+	for (size_t i = 0; i < outputLayerNeurons->size(); i++)
+	{
+		(*outputLayerNeurons)[i]->CalculateBiases(learningRate);
+	}
+	for (size_t i = 0; i < hiddenLayerNeurons->size(); i++)
+	{
+		(*hiddenLayerNeurons)[i]->CalculateBiases(learningRate);
 	}
 
 	return 0;
+}
+
+int NeuralNetwork::closestToOne(const std::vector<float>& array) {
+	if (array.empty()) {
+		// Handle the empty case, e.g., return -1 to indicate no valid index.
+		return -1;
+	}
+
+	int closestIndex = 0;
+	float minDifference = std::numeric_limits<float>::max();
+
+	for (int i = 0; i < array.size(); ++i) {
+		float difference = std::fabs(array[i] - 1.0f);
+		if (difference < minDifference) {
+			minDifference = difference;
+			closestIndex = i;
+		}
+	}
+
+	return closestIndex;
 }
 
 void NeuralNetwork::DisposeNeuralNetwork()
@@ -173,4 +235,9 @@ void NeuralNetwork::DisposeNeuralNetwork()
 	}
 
 	outputLayerNeurons.reset();
+}
+
+int NeuralNetwork::GetLastPredictedNum()
+{
+	return lastPredictedNum;
 }

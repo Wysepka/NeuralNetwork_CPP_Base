@@ -22,6 +22,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <iostream>
 #include "../../DataLogWriter.h"
 #include "../../FileParser.h"
+#include "../../NeuralNetwork.h"
 
 using namespace Neural;
 
@@ -68,6 +69,10 @@ void CalculateHandWrittenDigits() {
     auto fileData = fileParser.processFilePathToFileData("D:/Projekty/Unity/TripleEspresso/NeuralNetwork_CPP_Base/NeuralNetworks_CPP_Base/NeuralNetworks_CPP_Base/Data/semeion.data");
     dataLogWriter.OutputNumberFileData(fileData);
 
+	NeuralNetwork neuralNetwork;
+	neuralNetwork.InitializeNeuralNetwork(16 * 16, 64, 10);
+
+	neuralNetwork.ComputeNeuralNetwork(fileData, 0.01f);
 
 }
 

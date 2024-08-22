@@ -1,6 +1,6 @@
 #include "Neuron.h"
 
-Neuron::Neuron(unsigned int neuronID, unsigned int layerID , float bias) : neuronID(neuronID) , layerID(layerID) , bias(bias) , value(0.f) , gradientValue(0.f)
+Neuron::Neuron(unsigned int neuronID, unsigned int layerID , float bias , Enumeration::NeuronType neuronType) : neuronID(neuronID) , layerID(layerID) , bias(bias), neuronType(neuronType), value(0.f), gradientValue(0.f)
 {}
 
 void Neuron::Initialize(SynapseArray forwardSynapses, SynapseArray backwardSynapses)
@@ -48,10 +48,40 @@ float Neuron::GetOutput()
 	return value;
 }
 
-void Neuron::CalculateGradient(int originalValue)
+void Neuron::CalculateGradient_Output(int originalValue)
 {
 	CalculateValue();
 	gradientValue = (originalValue - value) * Functions::sigmoid(value);
+}
+
+void Neuron::CalculateGradient_Hidden()
+{
+	CalculateValue();
+	float sum = 0;
+	for (size_t i = 0; i < forwardSynapses->size(); i++)
+	{
+		sum += (*forwardSynapses)[i]->GetForwardGradientValue();
+	}
+	gradientValue = sum * Functions::sigmoid_prim(value);
+}
+
+void Neuron::CalculateForwardWeights(float learningRate)
+{
+	for (size_t i = 0; i < forwardSynapses->size(); i++)
+	{
+		auto forwardSynapseRef = (*forwardSynapses)[i];
+		forwardSynapseRef->UpdateWeight(learningRate * forwardSynapseRef->GetForwardGradientValue() * value);
+	}
+}
+
+void Neuron::CalculateBiases(float learningRate)
+{
+	bias -= learningRate * gradientValue;
+}
+
+float Neuron::GetGradientValue()
+{
+	return gradientValue;
 }
 
 void Neuron::Dispose()

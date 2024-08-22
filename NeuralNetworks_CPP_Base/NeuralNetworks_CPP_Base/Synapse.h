@@ -1,19 +1,23 @@
 #pragma once
 #include <functional>
+#include "Enumerations.h"
+#include "NeuronInfo.h"
 
 class Synapse
 {
 private:
-	unsigned int backwardID;
-	unsigned int forwardID;
+	NeuronInfo backwardNeuronInfo;
+	NeuronInfo forwardNeuronInfo;
 
 	float weight;
 
 	std::function<void(float)> forwardNeuronFeed;
+	std::function<float()> forwardNeuronGradientValue;
 
 public:
-	Synapse(unsigned int backwardID, unsigned int forwardID, float weight, std::function<void(float)> forwardNeuronFeed);
+	Synapse(NeuronInfo backwardNeuronInfo, NeuronInfo forwardNeuronInfo, float weight, std::function<void(float)> forwardNeuronFeed , std::function<float()> forwardNeuronGradientValue);
 	void FeedToForwardLayer(float value);
-
+	float GetForwardGradientValue();
+	void UpdateWeight(float value);
 };
 
