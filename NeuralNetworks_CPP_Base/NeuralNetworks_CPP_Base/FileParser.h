@@ -6,6 +6,8 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <algorithm>
+#include <random>
 
 struct SingleNumberData {
 	std::vector<std::string> rowData;
@@ -14,7 +16,10 @@ struct SingleNumberData {
 };
 
 struct NumberFileData {
+public:
 	std::vector<SingleNumberData> numberDatas;
+
+	void Shuffle();
 };
 
 class FileParser

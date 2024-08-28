@@ -23,6 +23,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "../../DataLogWriter.h"
 #include "../../FileParser.h"
 #include "../../NeuralNetwork.h"
+#include "../../Utility.h"
 
 using namespace Neural;
 
@@ -69,10 +70,23 @@ void CalculateHandWrittenDigits() {
     auto fileData = fileParser.processFilePathToFileData("D:/Projekty/Unity/TripleEspresso/NeuralNetwork_CPP_Base/NeuralNetworks_CPP_Base/NeuralNetworks_CPP_Base/Data/semeion.data");
     dataLogWriter.OutputNumberFileData(fileData);
 
-	NeuralNetwork neuralNetwork;
-	neuralNetwork.InitializeNeuralNetwork(16 * 16, 64, 10);
+	fileData.Shuffle();
+	size_t elementsToKeep = fileData.numberDatas.size() * 0.02;
+	fileData.numberDatas.erase(fileData.numberDatas.begin() + elementsToKeep, fileData.numberDatas.end());
 
-	neuralNetwork.ComputeNeuralNetwork(fileData, 0.01f);
+	NeuralNetwork neuralNetwork;
+	neuralNetwork.InitializeNeuralNetwork(16 * 16, 32, 10);
+
+	neuralNetwork.ComputeNeuralNetwork(fileData, 0.1f);
+	
+	std::vector<SingleNumberData> random10digits = Utility::GetRandomSingleNumbers(fileData.numberDatas, 10);
+
+	for (size_t i = 0; i < random10digits.size(); i++)
+	{
+		neuralNetwork.GetPredictionOnSingleFileNumber(random10digits[i]);
+		dataLogWriter.OutputNumberPrediction(random10digits[i], neuralNetwork.GetLastPredictedNum());
+	}
+
 
 }
 

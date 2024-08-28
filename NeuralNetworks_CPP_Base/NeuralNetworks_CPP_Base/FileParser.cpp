@@ -68,9 +68,25 @@ NumberFileData FileParser::processFilePathToFileData(const std::string& filePath
 				}
 			}
         }
+		if (NumberFileDatas.numberDatas.size() == 1304) 
+		{
+			//Breaking because data for 1305 element is corrupted
+			break;
+		}
 		NumberFileDatas.numberDatas.push_back(numberData);
     }
 
 
     return NumberFileDatas;
+}
+
+void NumberFileData::Shuffle()
+{
+	std::random_device rd;
+
+	// Create a random number generator using the Mersenne Twister algorithm
+	std::mt19937 g(rd());
+
+	// Shuffle the vector using the random number generator
+	std::shuffle(numberDatas.begin(), numberDatas.end(), g);
 }

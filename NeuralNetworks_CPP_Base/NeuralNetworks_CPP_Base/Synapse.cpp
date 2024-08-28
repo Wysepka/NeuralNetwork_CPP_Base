@@ -20,5 +20,10 @@ float Synapse::GetForwardGradientValue()
 
 void Synapse::UpdateWeight(float value)
 {
-	this->weight -= weight;
+	this->weight -= value;
+}
+
+float Synapse::GetWeight()
+{
+	return weight;
 }

@@ -1,9 +1,9 @@
 #include "Neuron.h"
 
-Neuron::Neuron(unsigned int neuronID, unsigned int layerID , float bias , Enumeration::NeuronType neuronType) : neuronID(neuronID) , layerID(layerID) , bias(bias), neuronType(neuronType), value(0.f), gradientValue(0.f)
+Neuron::Neuron(unsigned int neuronID, unsigned int layerID , float bias ,float value, Enumeration::NeuronType neuronType) : neuronID(neuronID) , layerID(layerID) , bias(bias), neuronType(neuronType), value(value), gradientValue(0.f)
 {}
 
-void Neuron::Initialize(SynapseArray forwardSynapses, SynapseArray backwardSynapses)
+void Neuron::Initialize(SynapseArrayUnique forwardSynapses, SynapseArrayUnique backwardSynapses)
 {
 	if (forwardSynapses.get() != nullptr) 
 	{
@@ -15,6 +15,13 @@ void Neuron::Initialize(SynapseArray forwardSynapses, SynapseArray backwardSynap
 	}
 }
 
+void Neuron::SetValue(float value)
+{
+	this->value = value;
+	this->valueSum = value;
+	this->feedCount = 1;
+}
+
 void Neuron::FeedValue(float value)
 {
 	valueSum += value;
@@ -23,8 +30,10 @@ void Neuron::FeedValue(float value)
 
 void Neuron::CalculateValue()
 {
-	value = valueSum / feedCount;
-	value = Functions::sigmoid(value + bias);
+	int additionalBiasCheck = neuronType == Enumeration::NeuronType::Hidden ? bias : bias;
+
+	value = (valueSum /*+ additionalBiasCheck*/) /* / feedCount */;
+	value = Functions::sigmoid(value + additionalBiasCheck);
 }
 
 void Neuron::PreFeedValueInitialize()
@@ -48,10 +57,25 @@ float Neuron::GetOutput()
 	return value;
 }
 
+float Neuron::GetBiasValue()
+{
+	return bias;
+}
+
+Enumeration::NeuronType Neuron::GetNeuronType()
+{
+    return neuronType;
+}
+
+SynapseArrayShared Neuron::GetSynapses()
+{
+	return std::make_shared<std::vector<std::shared_ptr<Synapse>>>(*forwardSynapses);
+}
+
 void Neuron::CalculateGradient_Output(int originalValue)
 {
 	CalculateValue();
-	gradientValue = (originalValue - value) * Functions::sigmoid(value);
+	gradientValue = (value - originalValue) * Functions::sigmoid_prim(value);
 }
 
 void Neuron::CalculateGradient_Hidden()
@@ -70,7 +94,9 @@ void Neuron::CalculateForwardWeights(float learningRate)
 	for (size_t i = 0; i < forwardSynapses->size(); i++)
 	{
 		auto forwardSynapseRef = (*forwardSynapses)[i];
-		forwardSynapseRef->UpdateWeight(learningRate * forwardSynapseRef->GetForwardGradientValue() * value);
+		float forwardGradientValue = forwardSynapseRef->GetForwardGradientValue();
+		float weightSubtraction = learningRate * forwardGradientValue * value;
+		forwardSynapseRef->UpdateWeight(weightSubtraction);
 	}
 }
 

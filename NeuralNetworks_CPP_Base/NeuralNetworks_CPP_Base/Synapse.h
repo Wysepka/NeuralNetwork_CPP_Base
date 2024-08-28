@@ -19,5 +19,6 @@ public:
 	void FeedToForwardLayer(float value);
 	float GetForwardGradientValue();
 	void UpdateWeight(float value);
+	float GetWeight();
 };
 
